@@ -1,1 +1,0 @@
-Telegram_Google_Calendar_Notifier
