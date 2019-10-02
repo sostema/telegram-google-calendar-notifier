@@ -1,0 +1,5 @@
+version: '3'
+services:
+  telegram:
+    build: .
+    restart: always
