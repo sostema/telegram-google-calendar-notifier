@@ -1,8 +1,10 @@
-import logging
 from datetime import datetime, timedelta
 
 import pytz
 
+from Code.utils import default_logger
+
+logger = default_logger
 local_timezone = pytz.timezone('Europe/Moscow')
 
 
@@ -17,38 +19,46 @@ def get_local_isoformat(dt: datetime):
 def get_datetime_from_string(str_date):
     dt = None
     try:
-        dt = datetime.strptime(str_date, "%Y/%-m/%-d")
+        dt = datetime.strptime(str_date, "%Y/%m/%d")
     except Exception as e:
-        logging.debug(e)
+        logger.debug(e)
     else:
         try:
-            dt = datetime.strptime(str_date, "%-m/%-d")
+            dt = datetime.strptime(str_date, "%m/%d")
         except Exception as e:
-            logging.debug(e)
+            logger.debug(e)
     return dt
 
 
 def get_datetime_delta(dt):
-    begin_of_dt = datetime(dt.year, dt.month, dt.day)
+    logger.debug(dt)
+    begin_of_dt = get_local_datetime(datetime(dt.year, dt.month, dt.day))
+    logger.debug(begin_of_dt)
     end_dt = begin_of_dt + timedelta(1)
     local_begin_dt = get_local_datetime(dt)
     local_end_dt = get_local_datetime(end_dt)
     return local_begin_dt, local_end_dt
 
 
+def get_now_date():
+    dt = datetime.now(tz=local_timezone)
+    now_dt = dt
+    return now_dt
+
+
 def get_today_date():
-    dt = datetime.utcnow()
-    today_date = get_local_datetime(dt)
+    dt = datetime.now(tz=local_timezone)
+    today_date = datetime(dt.year, dt.month, dt.day)
     return today_date
 
 
 def get_tomorrow_date():
-    dt = datetime.utcnow() + timedelta(1)
-    tomorrow_dt = get_local_datetime(dt)
+    dt = datetime.now(tz=local_timezone) + timedelta(1)
+    tomorrow_dt = dt
     return tomorrow_dt
 
 
-def get_date_string(today_date: datetime):
+def get_date_string(dt: datetime):
     weekdays_ru = {
         0: "Понедельник",
         1: "Вторник",
@@ -74,6 +84,6 @@ def get_date_string(today_date: datetime):
     }
     weekdays_to_str = weekdays_ru
     months_to_str = months_ru
-    today_date_str = weekdays_to_str[today_date.weekday()] + ", " + str(today_date.day) + " " + months_to_str[
-        today_date.month] + " " + str(today_date.year) + " года"
-    return today_date_str
+    dt_str = weekdays_to_str[dt.weekday()] + ", " + str(dt.day) + " " + months_to_str[
+        dt.month] + " " + str(dt.year) + " года "
+    return dt_str

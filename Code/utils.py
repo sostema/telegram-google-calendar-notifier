@@ -1,7 +1,28 @@
 import configparser
+import logging
+import pathlib
 from datetime import datetime, timedelta
 
 import pytz
+
+
+def setup_logger(logger_name):
+    console_handler = logging.StreamHandler()
+    (pathlib.Path("./Logs")).mkdir(parents=True, exist_ok=True)
+    file_handler = logging.FileHandler(f"./Logs/{logger_name}_logging.log")
+    logger_formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s - %(message)s")
+    console_handler.setFormatter(logger_formatter)
+    file_handler.setFormatter(logger_formatter)
+
+    logger = logging.getLogger(f'{logger_name}')
+    logger.setLevel(logging.DEBUG)
+
+    if not logger.handlers:
+        logger.addHandler(console_handler)
+        logger.addHandler(file_handler)
+
+    return logger
 
 
 def utc_to_local(utc_dt):
@@ -49,3 +70,4 @@ def save_config(config):
 
 config = get_config()
 local_tz = pytz.timezone(config.get("settings", "timezone"))
+default_logger = setup_logger("default")

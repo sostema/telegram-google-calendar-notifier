@@ -32,8 +32,8 @@ def get_events(_cal_id, time_begin, time_end, max_results=1):
     return events_result
 
 
-def get_date_events(datetime):
-    time_begin, time_end = thelpers.get_datetime_delta(datetime)
+def get_date_events(dt):
+    time_begin, time_end = thelpers.get_datetime_delta(dt)
     events_result = get_events(cal_id, time_begin, time_end, MAX_RESULTS)
     return events_result['items']
 
