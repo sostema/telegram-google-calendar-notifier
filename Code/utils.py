@@ -1,6 +1,9 @@
 import configparser
 import datetime
+
 import pytz
+
+from Code.calendar import get_calendar_timezone
 
 
 def utc_to_local(utc_dt):
@@ -64,12 +67,17 @@ def get_config():
     return config
 
 
+def save_config(config):
+    config.write("config.ini")
+
+
 config = get_config()
 local_tz = pytz.utc
-from Code.calendar import get_calendar_timezone
+
 if config.has_option("settings", "timezone"):
     local_tz = pytz.timezone(config.get("settings", "timezone"))
 else:
     if not config.has_section("settings"):
         config.add_section("settings")
     config.set("settings", "timezone", str(get_calendar_timezone()))
+    save_config(config)

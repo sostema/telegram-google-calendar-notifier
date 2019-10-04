@@ -1,4 +1,4 @@
-from Code.telegram import start
+from Code.TelegramAPI.telegram import main
 
 if __name__ == "__main__":
-    start()
+    main()

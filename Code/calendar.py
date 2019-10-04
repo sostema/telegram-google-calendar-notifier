@@ -1,4 +1,5 @@
 from googleapiclient.discovery import build
+
 from Code.utils import *
 
 
@@ -59,6 +60,5 @@ def get_parsed_event(event_item):
 
 
 MAX_RESULTS = 1000
-config = get_config()
 api_key, cal_id = init_calendar()
 service = get_service(api_key)
