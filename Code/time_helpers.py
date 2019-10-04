@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 
 import pytz
@@ -13,13 +14,31 @@ def get_local_isoformat(dt: datetime):
     return dt.replace(tzinfo=local_timezone).isoformat()
 
 
+def get_datetime_from_string(str_date):
+    dt = None
+    try:
+        dt = datetime.strptime(str_date, "%Y/%-m/%-d")
+    except Exception as e:
+        logging.debug(e)
+    else:
+        try:
+            dt = datetime.strptime(str_date, "%-m/%-d")
+        except Exception as e:
+            logging.debug(e)
+    return dt
+
+
+def get_datetime(dt):
+    begin_dt = datetime(dt.year, dt.month, dt.day)
+    end_dt = begin_dt + timedelta(days=1)
+    local_begin_dt = get_local_datetime(begin_dt)
+    local_end_dt = get_local_datetime(end_dt)
+    return local_begin_dt, local_end_dt
+
+
 def get_today_datetime():
     today_dt = datetime.utcnow()
-    today_begin_dt = datetime(today_dt.year, today_dt.month, today_dt.day)
-    today_end_dt = today_begin_dt + timedelta(days=1)
-    local_today_begin_dt = get_local_datetime(today_begin_dt)
-    local_today_end_dt = get_local_datetime(today_end_dt)
-    return local_today_begin_dt, local_today_end_dt
+    return get_datetime(today_dt)
 
 
 def get_tomorrow_datetime():
@@ -35,7 +54,7 @@ def get_today_date():
     return today_date
 
 
-def today_date_string(today_date: datetime):
+def get_date_string(today_date: datetime):
     weekdays_ru = {
         0: "Понедельник",
         1: "Вторник",
@@ -62,5 +81,5 @@ def today_date_string(today_date: datetime):
     weekdays_to_str = weekdays_ru
     months_to_str = months_ru
     today_date_str = weekdays_to_str[today_date.weekday()] + ", " + str(today_date.date) + " " + months_to_str[
-        today_date.month]
+        today_date.month] + " " + str(today_date.year) + " года"
     return today_date_str

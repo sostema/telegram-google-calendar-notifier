@@ -1,5 +1,7 @@
 from googleapiclient.discovery import build
 
+import Code.time_helpers as thelpers
+from Code.CalendarAPI.calendar import CalendarEvent
 from Code.utils import *
 
 
@@ -9,9 +11,9 @@ def init_calendar():
     return _api_key, _cal_id
 
 
-def get_service(api_key):
-    service = build('calendar', 'v3', developerKey=api_key)
-    return service
+def get_service(_api_key):
+    _service = build('calendar', 'v3', developerKey=_api_key)
+    return _service
 
 
 def get_calendar_timezone():
@@ -31,7 +33,7 @@ def get_events(cal_id, time_begin, time_end, max_results=1):
 
 
 def get_today_events():
-    time_begin, time_end = get_today()
+    time_begin, time_end = thelpers.get_today_datetime()
     events_result = get_events(cal_id, time_begin, time_end, MAX_RESULTS)
     return events_result['items']
 
@@ -46,19 +48,12 @@ def get_tomorrow_events():
 
 def get_today_parsed_events():
     events = get_today_events()
-    parsed_events = "\n\n".join(map(get_parsed_event, events))
+    parsed_events = "\n\n".join(map(CalendarEvent.parse_google_event, events))
     return parsed_events
 
 
-def get_parsed_event(event_item):
-    parsed_event = event_item['summary'] + " " + datetime.datetime.fromisoformat(
-        event_item['start']['dateTime']).strftime('%H:%M') + "-" + datetime.datetime.fromisoformat(
-        event_item['end']['dateTime']).strftime('%H:%M')
-    if 'description' in event_item:
-        parsed_event += "\n" + event_item.setdefault('description', '')
-    return parsed_event
-
-
 MAX_RESULTS = 1000
+config = get_config()
 api_key, cal_id = init_calendar()
 service = get_service(api_key)
+set_timezone(str(get_calendar_timezone()))

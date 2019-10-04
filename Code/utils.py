@@ -3,8 +3,6 @@ import datetime
 
 import pytz
 
-from Code.calendar import get_calendar_timezone
-
 
 def utc_to_local(utc_dt):
     local_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(local_tz)
@@ -61,6 +59,11 @@ def get_date():
     return "Сегодня " + str(today.day) + " " + months[today.month] + ", " + weekdays[today.weekday()]
 
 
+def set_timezone(timezone):
+    config.set("settings", "timezone", timezone)
+    save_config(config)
+
+
 def get_config():
     config = configparser.ConfigParser()
     config.read("config.ini")
@@ -72,12 +75,4 @@ def save_config(config):
 
 
 config = get_config()
-local_tz = pytz.utc
-
-if config.has_option("settings", "timezone"):
-    local_tz = pytz.timezone(config.get("settings", "timezone"))
-else:
-    if not config.has_section("settings"):
-        config.add_section("settings")
-    config.set("settings", "timezone", str(get_calendar_timezone()))
-    save_config(config)
+local_tz = pytz.timezone(config.get("settings", "timezone"))
