@@ -28,30 +28,24 @@ def get_datetime_from_string(str_date):
     return dt
 
 
-def get_datetime(dt):
-    begin_dt = datetime(dt.year, dt.month, dt.day)
-    end_dt = begin_dt + timedelta(days=1)
-    local_begin_dt = get_local_datetime(begin_dt)
+def get_datetime_delta(dt):
+    begin_of_dt = datetime(dt.year, dt.month, dt.day)
+    end_dt = begin_of_dt + timedelta(1)
+    local_begin_dt = get_local_datetime(dt)
     local_end_dt = get_local_datetime(end_dt)
     return local_begin_dt, local_end_dt
 
 
-def get_today_datetime():
-    today_dt = datetime.utcnow()
-    return get_datetime(today_dt)
-
-
-def get_tomorrow_datetime():
-    local_today_begin_dt, local_today_end_dt = get_today_datetime()
-    local_tomorrow_begin_dt = local_today_begin_dt + timedelta(1)
-    local_tomorrow_end_dt = local_today_end_dt + timedelta(1)
-    return local_tomorrow_begin_dt, local_tomorrow_end_dt
-
-
 def get_today_date():
-    today_date = datetime.utcnow()
-    today_date = get_local_datetime(today_date)
+    dt = datetime.utcnow()
+    today_date = get_local_datetime(dt)
     return today_date
+
+
+def get_tomorrow_date():
+    dt = datetime.utcnow() + timedelta(1)
+    tomorrow_dt = get_local_datetime(dt)
+    return tomorrow_dt
 
 
 def get_date_string(today_date: datetime):
@@ -80,6 +74,6 @@ def get_date_string(today_date: datetime):
     }
     weekdays_to_str = weekdays_ru
     months_to_str = months_ru
-    today_date_str = weekdays_to_str[today_date.weekday()] + ", " + str(today_date.date) + " " + months_to_str[
+    today_date_str = weekdays_to_str[today_date.weekday()] + ", " + str(today_date.day) + " " + months_to_str[
         today_date.month] + " " + str(today_date.year) + " года"
     return today_date_str

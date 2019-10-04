@@ -1,5 +1,5 @@
 import configparser
-import datetime
+from datetime import datetime, timedelta
 
 import pytz
 
@@ -10,53 +10,25 @@ def utc_to_local(utc_dt):
 
 
 def get_current_time():
-    time_today = utc_to_local(datetime.datetime.utcnow())
+    time_today = utc_to_local(datetime.utcnow())
     return time_today
 
 
 def get_tomorrow_time():
-    time_tomorrow = utc_to_local(datetime.datetime.utcnow() + datetime.timedelta(days=1))
+    time_tomorrow = utc_to_local(datetime.utcnow() + timedelta(days=1))
     return time_tomorrow
 
 
 def get_now_time():
-    now_time = utc_to_local(datetime.datetime.utcnow())
+    now_time = utc_to_local(datetime.utcnow())
     return now_time
 
 
 def get_today():
-    today = utc_to_local(datetime.datetime.utcnow())
-    start = utc_to_local(datetime.datetime(today.year, today.month, today.day))
-    end = utc_to_local(start + datetime.timedelta(1))
+    today = utc_to_local(datetime.utcnow())
+    start = utc_to_local(datetime(today.year, today.month, today.day))
+    end = utc_to_local(start + timedelta(1))
     return start, end
-
-
-def get_date():
-    weekdays = {
-        0: "Понедельник",
-        1: "Вторник",
-        2: "Среда",
-        3: "Четверг",
-        4: "Пятница",
-        5: "Суббота",
-        6: "Воскресенье"
-    }
-    months = {
-        1: "Января",
-        2: "Февраля",
-        3: "Марта",
-        4: "Апреля",
-        5: "Мая",
-        6: "Июня",
-        7: "Июля",
-        8: "Августа",
-        9: "Сентября",
-        10: "Октября",
-        11: "Ноября",
-        12: "Декабря"
-    }
-    today = utc_to_local(datetime.datetime.today())
-    return "Сегодня " + str(today.day) + " " + months[today.month] + ", " + weekdays[today.weekday()]
 
 
 def set_timezone(timezone):
@@ -71,7 +43,8 @@ def get_config():
 
 
 def save_config(config):
-    config.write("config.ini")
+    with open('config.ini', 'w') as configfile:
+        config.write(configfile)
 
 
 config = get_config()

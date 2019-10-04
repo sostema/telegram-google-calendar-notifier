@@ -1,8 +1,7 @@
-import logging
-
 from telegram.ext import Updater, CommandHandler
 
-from Code.calendar import *
+from Code.calendar import get_parsed_events, get_date_events
+from Code.time_helpers import *
 from Code.utils import config
 
 
@@ -23,8 +22,7 @@ def main():
     updater.start_polling()
 
 
-def today_timetable(update, context):
-    text = get_date() + "\n" + "Расписание:\n\n" + get_today_parsed_events()
+def send_timetable(update, context, text):
     msg_id = None
     try:
         message = context.bot.send_message(chat_id=update.message.chat_id, text=text)
@@ -35,20 +33,30 @@ def today_timetable(update, context):
         context.bot.pinChatMessage(chat_id=update.message.chat_id, message_id=msg_id)
     except Exception as e:
         logging.debug(e)
+
+
+def now_timetable(update, context):
+    date = get_today_date()
+    events = get_date_events(date)
+    parsed_events = get_parsed_events(events)
+    text = get_date_string(date) + "\n" + "Расписание:\n\n" + parsed_events
+    send_timetable(update, context, text)
+
+
+def today_timetable(update, context):
+    date = get_today_date()
+    events = get_date_events(date)
+    parsed_events = get_parsed_events(events)
+    text = get_date_string(date) + "\n" + "Расписание:\n\n" + parsed_events
+    send_timetable(update, context, text)
 
 
 def tomorrow_timetable(update, context):
-    text = get_date() + "\n" + "Расписание:\n\n" + get_today_parsed_events()
-    msg_id = None
-    try:
-        message = context.bot.send_message(chat_id=update.message.chat_id, text=text)
-        msg_id = message.message_id
-    except Exception as e:
-        logging.debug(e)
-    try:
-        context.bot.pinChatMessage(chat_id=update.message.chat_id, message_id=msg_id)
-    except Exception as e:
-        logging.debug(e)
+    date = get_today_date()
+    events = get_date_events(date)
+    parsed_events = get_parsed_events(events)
+    text = get_date_string(date) + "\n" + "Расписание:\n\n" + parsed_events
+    send_timetable(update, context, text)
 
 
 if __name__ == "__main__":

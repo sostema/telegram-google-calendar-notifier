@@ -21,10 +21,10 @@ def get_calendar_timezone():
     return str(cal_tz)
 
 
-def get_events(cal_id, time_begin, time_end, max_results=1):
+def get_events(_cal_id, time_begin, time_end, max_results=1):
     time_begin = time_begin.isoformat()
     time_end = time_end.isoformat()
-    events_result = service.events().list(calendarId=cal_id,
+    events_result = service.events().list(calendarId=_cal_id,
                                           timeMin=time_begin, timeMax=time_end,
                                           maxResults=max_results,
                                           singleEvents=True,
@@ -32,23 +32,14 @@ def get_events(cal_id, time_begin, time_end, max_results=1):
     return events_result
 
 
-def get_today_events():
-    time_begin, time_end = thelpers.get_today_datetime()
+def get_date_events(datetime):
+    time_begin, time_end = thelpers.get_datetime_delta(datetime)
     events_result = get_events(cal_id, time_begin, time_end, MAX_RESULTS)
     return events_result['items']
 
 
-def get_now_events():
-    pass
-
-
-def get_tomorrow_events():
-    pass
-
-
-def get_today_parsed_events():
-    events = get_today_events()
-    parsed_events = "\n\n".join(map(CalendarEvent.parse_google_event, events))
+def get_parsed_events(events):
+    parsed_events = "\n\n".join(map(CalendarEvent().parse_google_event, events))
     return parsed_events
 
 
