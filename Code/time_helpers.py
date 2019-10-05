@@ -33,20 +33,18 @@ class Date:
         return self
 
     def parse_datetime(self, string):
-        dt = None
         try:
             dt = datetime.strptime(string, "%Y/%m/%d")
+            return self.init_delta(dt)
         except Exception as e:
-            logger.debug(e)
-        else:
             try:
                 this_year = str(datetime.now(self.local_timezone).year)
                 string = this_year + "/" + string
                 dt = datetime.strptime(string, "%Y/%m/%d")
+                return self.init_delta(dt)
             except Exception as e:
                 logger.debug(e)
-
-        self.init_delta(dt)
+                raise e
 
     def __str__(self):
         weekdays_ru = {
@@ -74,8 +72,8 @@ class Date:
         }
         weekdays_to_str = weekdays_ru
         months_to_str = months_ru
-        dt_str = weekdays_to_str[self.date.weekday()] + ", " + str(self.date.day) + " " + \
-                 months_to_str[self.date.month] + " " + str(self.date.year) + " года "
+        dt_str = weekdays_to_str[self.date.weekday()] + ", " + str(self.date.day) + " " + months_to_str[
+            self.date.month] + " " + str(self.date.year) + " года "
         return dt_str
 
     def isoformat(self):

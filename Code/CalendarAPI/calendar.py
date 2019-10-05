@@ -16,14 +16,14 @@ class GoogleCalendar:
         return self.service.events().list(calendarId=self.cal_id, maxResults=1).execute()['timeZone']
 
     def get_events(self, time_begin, time_end, max_results=250):
-        time_begin = time_begin.isoformat()
-        time_end = time_end.isoformat()
+        time_begin = time_begin.isoformat() + 'Z'
+        time_end = time_end.isoformat() + 'Z'
         result = self.service.events().list(calendarId=self.cal_id,
                                             timeMin=time_begin, timeMax=time_end,
                                             maxResults=max_results,
                                             singleEvents=True,
                                             orderBy='startTime').execute()
-        events = map(CalendarEvent().parse_google_event, result['items'])
+        events = list(map(helpers.parse_google_event, result['items']))
         return events
 
     def get_date_events(self, dt):
@@ -43,23 +43,6 @@ class CalendarEvent:
         self.location = location
         self.teacher = teacher
         self.reminders = reminders
-
-    def parse_google_event(self, event: dict):
-        self.name = event['summary']
-        self.description = event.setdefault('description', None)
-        if 'start' in event:
-            self.begin_date = helpers.parse_google_event_datetime(event['start']['dateTime'])
-        else:
-            self.begin_date = None
-        if 'end' in event:
-            self.end_date = helpers.parse_google_event_datetime(event['end']['dateTime'])
-        else:
-            self.end_date = None
-        self.location = event.setdefault('location', None)
-        if 'reminders' in event:
-            for reminder in event['reminders'].setdefault('overrides', []):
-                self.reminders.append(reminder['minutes'])
-        return self
 
     def __str__(self):
         string = ""

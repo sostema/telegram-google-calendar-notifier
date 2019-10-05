@@ -38,8 +38,8 @@ def main():
 
 def send_timetable(update, context, calendar, date):
     events = calendar.get_events(date.datetime_begin, date.datetime_end)
-
-    text = Code.time_helpers.Date().__str__() + '\n'
+    logger.debug(events)
+    text = date.__str__() + '\n'
     if events:
         text += "Расписание: \n\n"
         for event in events:
