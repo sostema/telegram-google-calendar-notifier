@@ -1,15 +1,23 @@
-import logging
+import datetime
 
 from telegram.ext import Updater, CommandHandler
 
-from Code.calendar import get_parsed_events, get_date_events
-from Code.time_helpers import *
-from Code.utils import config
+import Code.CalendarAPI.helpers
+import Code.time_helpers
+import Code.utils
+
+config = None
+logger = None
 
 
 def main():
+    import logging
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                        level=logging.INFO, )
+                        level=logging.INFO)
+
+    global config, logger
+    config = Code.utils.get_config()
+    logger = Code.utils.setup_logger('telegram')
 
     token = config.get("credentials", "telegram_api_key")
     updater = Updater(token=token, use_context=True)
@@ -28,53 +36,62 @@ def main():
     updater.start_polling()
 
 
-def send_timetable(update, context, date):
-    events = get_date_events(date)
-    parsed_events = get_parsed_events(events)
-    if parsed_events:
-        text = get_date_string(date) + "\n" + "Расписание:\n\n" + parsed_events
+def send_timetable(update, context, calendar, date):
+    events = calendar.get_events(date.datetime_begin, date.datetime_end)
+
+    text = Code.time_helpers.Date().__str__() + '\n'
+    if events:
+        text += "Расписание: \n\n"
+        for event in events:
+            text += event.__str__() + '\n'
     else:
-        text = get_date_string(date) + "\n" + "Ура! Пар нет."
+        text += "Ура! Пар нет."
+
     msg_id = None
     try:
         message = context.bot.send_message(chat_id=update.message.chat_id, text=text)
         msg_id = message.message_id
     except Exception as e:
-        logging.debug(e)
+        logger.debug(e)
     try:
         context.bot.pinChatMessage(chat_id=update.message.chat_id, message_id=msg_id)
     except Exception as e:
-        logging.debug(e)
+        logger.debug(e)
 
 
 def date_timetable(update, context):
-    if not context.args:
-        context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
-                                 text="Неправильно введена дата! Должен быть формат YYYY/MM/DD")
-        return
-    try:
-        date = get_datetime_from_string(context.args[0])
-    except Exception as e:
-        context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
-                                 text="Неправильно введена дата! Должен быть формат YYYY/MM/DD")
-        logger.debug(e)
+    calendar = Code.CalendarAPI.helpers.setup_calendar_from_config(config)
+    if context.args:
+        date_str = context.args[0]
+        try:
+            date = Code.time_helpers.Date().parse_datetime(date_str)
+        except Exception as e:
+            context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+                                     text="Неправильно введена дата! Должен быть формат YYYY/MM/DD или MM/DD")
+            logger.debug(e)
+        else:
+            send_timetable(update, context, calendar, date)
     else:
-        send_timetable(update, context, date)
+        date = Code.time_helpers.Date(full_day=True)
+        send_timetable(update, context, calendar, date)
 
 
 def now_timetable(update, context):
-    date = get_now_date()
-    send_timetable(update, context, date)
+    calendar = Code.CalendarAPI.helpers.setup_calendar_from_config(config)
+    date = Code.time_helpers.Date()
+    send_timetable(update, context, calendar, date)
 
 
 def today_timetable(update, context):
-    date = get_today_date()
-    send_timetable(update, context, date)
+    calendar = Code.CalendarAPI.helpers.setup_calendar_from_config(config)
+    date = Code.time_helpers.Date(datetime.datetime.today(), True)
+    send_timetable(update, context, calendar, date)
 
 
 def tomorrow_timetable(update, context):
-    date = get_tomorrow_date()
-    send_timetable(update, context, date)
+    calendar = Code.CalendarAPI.helpers.setup_calendar_from_config(config)
+    date = Code.time_helpers.Date(datetime.datetime.today() + datetime.timedelta(1), True)
+    send_timetable(update, context, calendar, date)
 
 
 if __name__ == "__main__":

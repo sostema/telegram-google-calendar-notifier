@@ -2,88 +2,81 @@ from datetime import datetime, timedelta
 
 import pytz
 
-from Code.utils import default_logger
+from Code.utils import setup_logger
 
-logger = default_logger
-local_timezone = pytz.timezone('Europe/Moscow')
-
-
-def get_local_datetime(dt: datetime):
-    return dt.replace(tzinfo=local_timezone)
+logger = setup_logger("time_helpers")
 
 
-def get_local_isoformat(dt: datetime):
-    return dt.replace(tzinfo=local_timezone).isoformat()
+class Date:
+    def __init__(self, dt=datetime.utcnow(), full_day=True, local_timezone=pytz.timezone('Europe/Moscow')):
+        self.local_timezone = local_timezone
+        self.full_day = full_day
 
+        self.date = None
+        self.datetime_begin = None
+        self.datetime_end = None
 
-def get_datetime_from_string(str_date):
-    dt = None
-    try:
-        dt = datetime.strptime(str_date, "%Y/%m/%d")
-    except Exception as e:
-        logger.debug(e)
-    else:
+        self.init_delta(dt)
+
+    def init_delta(self, dt):
+        dt = dt.replace(tzinfo=self.local_timezone)
+
+        if self.full_day:
+            self.date = datetime(dt.year, dt.month, dt.day)
+            self.datetime_begin = self.date
+            self.datetime_end = self.date + timedelta(1)
+        else:
+            self.date = datetime(dt.year, dt.month, dt.day)
+            self.datetime_begin = dt
+            self.datetime_end = self.date + timedelta(1)
+
+        return self
+
+    def parse_datetime(self, string):
+        dt = None
         try:
-            dt = datetime.strptime(str_date, "%m/%d")
+            dt = datetime.strptime(string, "%Y/%m/%d")
         except Exception as e:
             logger.debug(e)
-    return dt
+        else:
+            try:
+                this_year = str(datetime.now(self.local_timezone).year)
+                string = this_year + "/" + string
+                dt = datetime.strptime(string, "%Y/%m/%d")
+            except Exception as e:
+                logger.debug(e)
 
+        self.init_delta(dt)
 
-def get_datetime_delta(dt):
-    logger.debug(dt)
-    begin_of_dt = get_local_datetime(datetime(dt.year, dt.month, dt.day))
-    logger.debug(begin_of_dt)
-    end_dt = begin_of_dt + timedelta(1)
-    local_begin_dt = get_local_datetime(dt)
-    local_end_dt = get_local_datetime(end_dt)
-    return local_begin_dt, local_end_dt
+    def __str__(self):
+        weekdays_ru = {
+            0: "Понедельник",
+            1: "Вторник",
+            2: "Среда",
+            3: "Четверг",
+            4: "Пятница",
+            5: "Суббота",
+            6: "Воскресенье"
+        }
+        months_ru = {
+            1: "Января",
+            2: "Февраля",
+            3: "Марта",
+            4: "Апреля",
+            5: "Мая",
+            6: "Июня",
+            7: "Июля",
+            8: "Августа",
+            9: "Сентября",
+            10: "Октября",
+            11: "Ноября",
+            12: "Декабря"
+        }
+        weekdays_to_str = weekdays_ru
+        months_to_str = months_ru
+        dt_str = weekdays_to_str[self.date.weekday()] + ", " + str(self.date.day) + " " + \
+                 months_to_str[self.date.month] + " " + str(self.date.year) + " года "
+        return dt_str
 
-
-def get_now_date():
-    dt = datetime.now(tz=local_timezone)
-    now_dt = dt
-    return now_dt
-
-
-def get_today_date():
-    dt = datetime.now(tz=local_timezone)
-    today_date = datetime(dt.year, dt.month, dt.day)
-    return today_date
-
-
-def get_tomorrow_date():
-    dt = datetime.now(tz=local_timezone) + timedelta(1)
-    tomorrow_dt = dt
-    return tomorrow_dt
-
-
-def get_date_string(dt: datetime):
-    weekdays_ru = {
-        0: "Понедельник",
-        1: "Вторник",
-        2: "Среда",
-        3: "Четверг",
-        4: "Пятница",
-        5: "Суббота",
-        6: "Воскресенье"
-    }
-    months_ru = {
-        1: "Января",
-        2: "Февраля",
-        3: "Марта",
-        4: "Апреля",
-        5: "Мая",
-        6: "Июня",
-        7: "Июля",
-        8: "Августа",
-        9: "Сентября",
-        10: "Октября",
-        11: "Ноября",
-        12: "Декабря"
-    }
-    weekdays_to_str = weekdays_ru
-    months_to_str = months_ru
-    dt_str = weekdays_to_str[dt.weekday()] + ", " + str(dt.day) + " " + months_to_str[
-        dt.month] + " " + str(dt.year) + " года "
-    return dt_str
+    def isoformat(self):
+        return self.date.replace(tzinfo=self.local_timezone).isoformat()

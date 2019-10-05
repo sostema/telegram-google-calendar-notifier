@@ -1,4 +1,34 @@
+from googleapiclient.discovery import build
+
 import Code.CalendarAPI.helpers as helpers
+import Code.time_helpers
+
+
+class GoogleCalendar:
+    def __init__(self, api_key, cal_id):
+        self.api_key = api_key
+        self.cal_id = cal_id
+        self.service = build('calendar', 'v3', developerKey=self.api_key)
+
+        self.cal_timezone = self.get_calendar_timezone()
+
+    def get_calendar_timezone(self):
+        return self.service.events().list(calendarId=self.cal_id, maxResults=1).execute()['timeZone']
+
+    def get_events(self, time_begin, time_end, max_results=250):
+        time_begin = time_begin.isoformat()
+        time_end = time_end.isoformat()
+        result = self.service.events().list(calendarId=self.cal_id,
+                                            timeMin=time_begin, timeMax=time_end,
+                                            maxResults=max_results,
+                                            singleEvents=True,
+                                            orderBy='startTime').execute()
+        events = map(CalendarEvent().parse_google_event, result['items'])
+        return events
+
+    def get_date_events(self, dt):
+        date = Code.time_helpers.Date(dt)
+        return self.get_events(date.datetime_begin, date.datetime_end)
 
 
 class CalendarEvent:
@@ -29,9 +59,9 @@ class CalendarEvent:
         if 'reminders' in event:
             for reminder in event['reminders'].setdefault('overrides', []):
                 self.reminders.append(reminder['minutes'])
-        return self.get_event_string()
+        return self
 
-    def get_event_string(self):
+    def __str__(self):
         string = ""
         if self.name:
             string = self.name + '\n'

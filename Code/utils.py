@@ -6,10 +6,10 @@ from datetime import datetime, timedelta
 import pytz
 
 
-def setup_logger(logger_name):
+def setup_logger(logger_name=__name__):
     console_handler = logging.StreamHandler()
-    (pathlib.Path("./Logs")).mkdir(parents=True, exist_ok=True)
-    file_handler = logging.FileHandler(f"./Logs/{logger_name}_logging.log")
+    (pathlib.Path("../Logs")).mkdir(parents=True, exist_ok=True)
+    file_handler = logging.FileHandler(f"../Logs/{logger_name}_logging.log")
     logger_formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s - %(message)s")
     console_handler.setFormatter(logger_formatter)
@@ -58,14 +58,14 @@ def set_timezone(timezone):
 
 
 def get_config():
-    config = configparser.ConfigParser()
-    config.read("config.ini")
-    return config
+    _config = configparser.ConfigParser()
+    _config.read("config.ini")
+    return _config
 
 
-def save_config(config):
+def save_config(_config):
     with open('config.ini', 'w') as configfile:
-        config.write(configfile)
+        _config.write(configfile)
 
 
 config = get_config()
