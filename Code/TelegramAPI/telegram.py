@@ -33,6 +33,8 @@ def main():
     dispatcher.add_handler(date_timetable_handler)
     notify_handler = CommandHandler('notify', notify, pass_job_queue=True)
     dispatcher.add_handler(notify_handler)
+    stop_notify_handler = CommandHandler('stop_notify', stop_notify, pass_job_queue=True)
+    dispatcher.add_handler(stop_notify_handler)
     notify_button_handler = CallbackQueryHandler(notify_button, pass_job_queue=True)
     updater.dispatcher.add_handler(notify_button_handler)
 
@@ -154,24 +156,29 @@ def notify(update, context):
 def notify_button(update, context):
     query = update.callback_query
     data = query.data.split('_')
-    date = datetime.datetime.strptime(data[0], "%H:%M").time()
+    date = datetime.datetime.strptime(data[0], "%H:%M")
+    time = date.time()
     result = data[1]
     if result == 1:
-        context.job_queue.run_daily(callback_notify_today, date, context=query.message.chat_id,
+        context.job_queue.run_daily(callback_notify_today, time, context=query.message.chat_id,
                                     name=f"{query.message.chat_id}")
         result_text = "сегодня"
     elif result == 2:
-        context.job_queue.run_daily(callback_notify_today, date, context=query.message.chat_id,
+        context.job_queue.run_daily(callback_notify_today, time, context=query.message.chat_id,
                                     name=f"{query.message.chat_id}")
         result_text = "завтра"
     else:
-        context.job_queue.run_daily(callback_notify_today, date, context=query.message.chat_id,
+        context.job_queue.run_daily(callback_notify_today, time, context=query.message.chat_id,
                                     name=f"{query.message.chat_id}")
-        context.job_queue.run_daily(callback_notify_tomorrow, date, context=query.message.chat_id,
+        context.job_queue.run_daily(callback_notify_tomorrow, time, context=query.message.chat_id,
                                     name=f"{query.message.chat_id}")
         result_text = "сегодня и завтра"
-    date = Code.time_helpers.local_timezone.localize(datetime.datetime.strptime(data[0], "%H:%M")).time()
-    query.edit_message_text(text=f"На том и решили! В {date.hour}:{date.minute} расписание на {result_text}!")
+    date = datetime.datetime.strptime(data[0], "%H:%M").replace(year=datetime.datetime.today().year,
+                                                                month=datetime.datetime.today().month,
+                                                                day=datetime.datetime.today().day)
+    date = (pytz.utc.localize(date)).astimezone(Code.time_helpers.local_timezone)
+    query.edit_message_text(
+        text=f"На том и решили! В {date.strftime('%H:%M:%Z')} вы будете получать расписание на {result_text}!")
 
 
 def stop_notify(update, context):
