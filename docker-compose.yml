@@ -5,3 +5,4 @@ services:
     restart: always
     volumes:
       - ../Data/:/app/Data/
+      - ../Logs/:/app/Logs/

@@ -5,10 +5,11 @@ import pytz
 from Code.utils import setup_logger
 
 logger = setup_logger("time_helpers")
+local_timezone = pytz.timezone('Europe/Moscow')
 
 
 class Date:
-    def __init__(self, dt=datetime.utcnow(), full_day=True, local_timezone=pytz.timezone('Europe/Moscow')):
+    def __init__(self, dt=datetime.utcnow(), full_day=True, local_timezone=local_timezone):
         self.local_timezone = local_timezone
         self.full_day = full_day
 
@@ -19,7 +20,7 @@ class Date:
         self.init_delta(dt)
 
     def init_delta(self, dt):
-        dt = dt.replace(tzinfo=self.local_timezone)
+        dt = dt.astimezone(self.local_timezone)
 
         if self.full_day:
             self.date = datetime(dt.year, dt.month, dt.day)
