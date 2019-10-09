@@ -149,7 +149,7 @@ def notify(update, context):
                  InlineKeyboardButton("Завтра", callback_data=f"{delay.strftime('%H:%M')}_2")],
                 [InlineKeyboardButton("Сегодня и завтра", callback_data=f"{delay.strftime('%H:%M')}_3")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    context.bot.send_message(chat_id=update.message.chat_id, reply_to_message_id=update.message.message_id,
+    context.bot.send_message(chat_id=update.message.chat_id,
                              text=f"Выберите вид расписания: ", reply_markup=reply_markup)
 
 
@@ -159,11 +159,11 @@ def notify_button(update, context):
     date = datetime.datetime.strptime(data[0], "%H:%M")
     time = date.time()
     result = data[1]
-    if result == 1:
+    if result == '1':
         context.job_queue.run_daily(callback_notify_today, time, context=query.message.chat_id,
                                     name=f"{query.message.chat_id}")
         result_text = "сегодня"
-    elif result == 2:
+    elif result == '2':
         context.job_queue.run_daily(callback_notify_today, time, context=query.message.chat_id,
                                     name=f"{query.message.chat_id}")
         result_text = "завтра"
