@@ -96,7 +96,7 @@ def date_timetable(update, context):
 
 
 def now_timetable(update, context):
-    date = Code.time_helpers.Date()
+    date = Code.time_helpers.Date(datetime.datetime.now(), False)
     send_timetable(context, date, update.message.chat_id)
 
 
