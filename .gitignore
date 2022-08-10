@@ -123,8 +123,11 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-#PyCharm
+# PyCharm
 .idea/
 
-#ConfigSecret
+# ConfigSecret
 config.ini
+
+# Poetry lock
+poetry.lock
