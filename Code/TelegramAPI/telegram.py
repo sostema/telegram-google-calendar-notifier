@@ -96,7 +96,7 @@ def date_timetable(update, context):
 
 
 def now_timetable(update, context):
-    date = Code.time_helpers.Date()
+    date = Code.time_helpers.Date(datetime.datetime.now(), False)
     send_timetable(context, date, update.message.chat_id)
 
 
@@ -164,7 +164,7 @@ def notify_button(update, context):
                                     name=f"{query.message.chat_id}")
         result_text = "сегодня"
     elif result == '2':
-        context.job_queue.run_daily(callback_notify_today, time, context=query.message.chat_id,
+        context.job_queue.run_daily(callback_notify_tomorrow, time, context=query.message.chat_id,
                                     name=f"{query.message.chat_id}")
         result_text = "завтра"
     else:

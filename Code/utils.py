@@ -8,8 +8,8 @@ import pytz
 
 def setup_logger(logger_name=__name__):
     console_handler = logging.StreamHandler()
-    (pathlib.Path("/app/Logs")).mkdir(parents=True, exist_ok=True)
-    file_handler = logging.FileHandler(f"/app/Logs/{logger_name}_logging.log")
+    (pathlib.Path("./app/Logs")).mkdir(parents=True, exist_ok=True)
+    file_handler = logging.FileHandler(f"./app/Logs/{logger_name}_logging.log")
     logger_formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s - %(message)s")
     console_handler.setFormatter(logger_formatter)
