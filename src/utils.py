@@ -11,11 +11,12 @@ def setup_logger(logger_name=__name__):
     (pathlib.Path("./app/Logs")).mkdir(parents=True, exist_ok=True)
     file_handler = logging.FileHandler(f"./app/Logs/{logger_name}_logging.log")
     logger_formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s - %(message)s")
+        "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s - %(message)s"
+    )
     console_handler.setFormatter(logger_formatter)
     file_handler.setFormatter(logger_formatter)
 
-    logger = logging.getLogger(f'{logger_name}')
+    logger = logging.getLogger(f"{logger_name}")
     logger.setLevel(logging.DEBUG)
 
     if not logger.handlers:
@@ -64,7 +65,7 @@ def get_config():
 
 
 def save_config(_config):
-    with open('config.ini', 'w') as configfile:
+    with open("config.ini", "w") as configfile:
         _config.write(configfile)
 
 

@@ -2,13 +2,13 @@ import pickle
 from threading import Event
 from time import time
 
-JOBS_PICKLE = '/app/Data/job_tuples.pickle'
+JOBS_PICKLE = "/app/Data/job_tuples.pickle"
 
 
 def load_jobs(jq):
     now = time()
 
-    with open(JOBS_PICKLE, 'rb') as fp:
+    with open(JOBS_PICKLE, "rb") as fp:
         while True:
             try:
                 next_t, job = pickle.load(fp)
@@ -41,7 +41,7 @@ def save_jobs(jq):
     else:
         job_tuples = []
 
-    with open(JOBS_PICKLE, 'wb') as fp:
+    with open(JOBS_PICKLE, "wb") as fp:
         for next_t, job in job_tuples:
             # Back up objects
             _job_queue = job._job_queue

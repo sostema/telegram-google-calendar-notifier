@@ -1,8 +1,0 @@
-version: '3'
-services:
-  telegram:
-    build: .
-    restart: always
-    volumes:
-      - ../Data/:/app/Data/
-      - ../Logs/:/app/Logs/

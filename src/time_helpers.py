@@ -2,14 +2,16 @@ from datetime import datetime, timedelta
 
 import pytz
 
-from Code.utils import setup_logger
+from src.utils import setup_logger
 
 logger = setup_logger("time_helpers")
-local_timezone = pytz.timezone('Europe/Moscow')
+local_timezone = pytz.timezone("Europe/Moscow")
 
 
 class Date:
-    def __init__(self, dt=datetime.utcnow(), full_day=True, local_timezone=local_timezone):
+    def __init__(
+        self, dt=datetime.utcnow(), full_day=True, local_timezone=local_timezone
+    ):
         self.local_timezone = local_timezone
         self.full_day = full_day
 
@@ -55,7 +57,7 @@ class Date:
             3: "Четверг",
             4: "Пятница",
             5: "Суббота",
-            6: "Воскресенье"
+            6: "Воскресенье",
         }
         months_ru = {
             1: "Января",
@@ -69,12 +71,20 @@ class Date:
             9: "Сентября",
             10: "Октября",
             11: "Ноября",
-            12: "Декабря"
+            12: "Декабря",
         }
         weekdays_to_str = weekdays_ru
         months_to_str = months_ru
-        dt_str = weekdays_to_str[self.date.weekday()] + ", " + str(self.date.day) + " " + months_to_str[
-            self.date.month] + " " + str(self.date.year) + " года "
+        dt_str = (
+            weekdays_to_str[self.date.weekday()]
+            + ", "
+            + str(self.date.day)
+            + " "
+            + months_to_str[self.date.month]
+            + " "
+            + str(self.date.year)
+            + " года "
+        )
         return dt_str
 
     def isoformat(self):
